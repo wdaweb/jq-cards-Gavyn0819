@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        background: url(./cards/背景.jpg);
+      }
+      .container {
+        width: 1024px;
+        height: 768px;
+        margin: auto;
+      }
+
+      #game {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        width: 1000px;
+      }
+
+      .card {
+        width: 150px;
+        height: 200px;
+        position: relative;
+        display: inline-block;
+        margin: 10px;
+        transform-style: preserve-3d;
+        transition: transform 1s;
+        transform: rotateY(0deg);
+      }
+
+      .card-front,
+      .card-back {
+        width: 100%;
+        height: 100%;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        backface-visibility: hidden;
+      }
+
+      .card-back {
+        background-image: url(./cards/卡背.jpg);
+        transform: rotateY(180deg);
+      }
+
+      .card-close {
+        transform: rotateY(180deg);
+      }
+
+      .card-ok {
+        visibility: hidden !important;
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+      integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="timer">遊戲時間： 0 秒</div>
+      <div id="game"></div>
+      <script>
+        for (let i = 0; i < 10; i++) {
+          const number = (i % 5) + 1;
+          $("#game").append(`
+      <div class="card card-close">
+        <div class="card-front" style="background-image: url(./cards/${number}.jpg)"></div>
+        <div class="card-back"></div>
+      </div>
+    `);
+        }
+
+        var timerStarted = false;
+        var timer;
+
+        $(document).on("click", ".card", function () {
+          if (timerStarted) return;
+
+          var seconds = 10;
+          timer = setInterval(function () {
+            seconds--;
+
+            $("#timer").text("遊戲時間： " + seconds + " 秒");
+
+            if (seconds === 0) {
+              clearInterval(timer);
+              $("#timer").text("時間到");
+            }
+          }, 1000);
+
+          timerStarted = true;
+        });
+        var cards = $(".card").get();
+
+        cards.sort(function () {
+          return 0.5 - Math.random();
+        });
+
+        $("#game").empty().append(cards);
+        $("#game").on("click", ".card", function () {
+          if (
+            $(".card:not(.card-close)").length < 2 &&
+            $(this).hasClass("card-close") &&
+            !$(this).hasClass("card-ok")
+          ) {
+            $(this).removeClass("card-close");
+
+            if ($(".card:not(.card-close)").length === 2) {
+              if (
+                $(".card:not(.card-close)")
+                  .eq(0)
+                  .find(".card-front")
+                  .css("background-image") ===
+                $(".card:not(.card-close)")
+                  .eq(1)
+                  .find(".card-front")
+                  .css("background-image")
+              ) {
+                $(".card:not(.card-close)")
+                  .addClass("card-ok")
+                  .css("visibility", "hidden");
+
+                $(".card:not(.card-close)").addClass("card-close");
+              } else {
+                setTimeout(function () {
+                  $(".card:not(.card-close)").addClass("card-close");
+                }, 1000);
+              }
+            }
+          }
+        });
+      </script>
+    </div>
+  </body>
+</html>
